@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oicq.dao.UserDao">
+
+    <insert id="insertOne" parameterType="com.oicq.entity.User">
+        insert into user
+        (email,nickname,password,url,gmt_create,gmt_modified)
+        values(#{email},#{nickname},#{password},#{url},#{gmt_create},#{gmt_modified});
+    </insert>
+    <select id="getUserInfo" parameterType="java.lang.String" resultType="com.oicq.entity.vo.UserVo">
+        SELECT user.id,email,nickname,password,url,phone,signature,sex,blood_type_id,blood_type,friendship_policy,star_id,star_type,gmt_create,gmt_modified
+        FROM `user`
+                 LEFT OUTER JOIN blood ON (user.blood_type_id = blood.id)
+                 LEFT OUTER JOIN star ON (user.star_id = star.id)
+        WHERE `user`.id=#{id}
+
+    </select>
+    <select id="getOneByEmail" parameterType="java.lang.String" resultType="com.oicq.entity.User">
+
+        select * from user where email=#{email}
+    </select>
+    <update id="updateByUser" parameterType="com.oicq.entity.User">
+        update user
+        set nickname=#{nickname},password=#{password},url=#{url},
+            phone=#{phone},signature=#{signature},sex=#{sex},blood_type_id=#{blood_type_id},
+            friendship_policy=#{friendship_policy},star_id=#{star_id},gmt_modified=#{gmt_modified}
+        where id=#{id}
+    </update>
+    <select id="getOneById" parameterType="java.lang.String" resultType="com.oicq.entity.User">
+        select * from user where id=#{id}
+    </select>
+    <select id="getByKeyword" parameterType="java.lang.String" resultType="com.oicq.entity.UserSearch">
+        select id,email,nickname,url,sex,phone,signature
+        from user
+        where email like'%${keyword}%' or nickname like'%${keyword}%'
+    </select>
+
+    <select id="getOnline" parameterType="java.lang.String" resultType="com.oicq.entity.UserSearch">
+        select id,email,nickname,url,sex from user
+        where id=#{id}
+    </select>
+    <select id="getFriendList" parameterType="java.lang.String" resultType="com.oicq.entity.UserSearch">
+        select id,email,nickname,url,sex,phone,signature
+        from user
+        where id in
+              (select friend from friend where me=#{id})
+    </select>
+
+</mapper>
